@@ -24,6 +24,7 @@ public class PizzariaGUI extends JFrame {
     private Cliente clienteSelecionado;
     private HashMap<Cliente, ArrayList<Pedido>> pedidosClientes; // Associar pedidos a clientes
     private ArrayList<Sabor> sabores = new ArrayList<>();
+    JLabel totalLabel = new JLabel();
 
     public PizzariaGUI() {
         
@@ -244,7 +245,7 @@ public class PizzariaGUI extends JFrame {
         }
         
         JButton atualizarButton = new JButton("Recarregar Sabores");
-        JLabel totalLabel = new JLabel("Preço Total: R$ 0.00");
+        totalLabel.setText("Preço Total: R$ 0.00");
         
         formPanel.add(formaLabel);
         formPanel.add(formaComboBox);
@@ -745,8 +746,10 @@ public class PizzariaGUI extends JFrame {
             if (pedidoIndex != -1) {
                 pedido = listaPedidos.get(pedidoIndex); // Carrega o pedido selecionado
                 exibirItensPedidoAtual(); // Exibe os itens do pedido atual no JTextArea
+                listaPedidos.remove(pedido); 
             }
         }
+        atualizaPreco();
     }
     
     private void excluirPizza() {
@@ -778,6 +781,7 @@ public class PizzariaGUI extends JFrame {
             pedido.removerPizza(pizzaIndex); // Método que você deve implementar na classe Pedido
             exibirItensPedidoAtual(); // Atualiza a exibição dos itens
         }
+        atualizaPreco();
     }
 
     private void exibirItensPedidoAtual() {
@@ -908,6 +912,8 @@ public class PizzariaGUI extends JFrame {
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
+
+        atualizaPreco();
     }
     
     private void finalizarPedido() { 
@@ -934,6 +940,7 @@ public class PizzariaGUI extends JFrame {
     
         // Limpar o pedido e o cliente selecionado para um novo pedido
         clienteSelecionado = null;
+        atualizaPreco();
     }
     
     private void inicializarSaboresPadrao() {
@@ -943,6 +950,10 @@ public class PizzariaGUI extends JFrame {
         sabores.add(new Sabor("Quatro Queijos", "Especial"));
         sabores.add(new Sabor("Portuguesa", "Premium"));
         sabores.add(new Sabor("Pepperoni", "Premium"));
+    }
+
+    private void atualizaPreco(){
+        totalLabel.setText("Preço Total: R$ "+ pedido.calcularPrecoTotal());    
     }
 
     public static void main(String[] args) {

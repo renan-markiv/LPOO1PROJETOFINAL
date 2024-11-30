@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public class PizzariaGUI extends JFrame {
     private JComboBox<String> formaComboBox;
-    private JComboBox<String> medidaComboBox;  
+    private JComboBox<String> medidaComboBox;
     private JTextField tamanhoField;
     private JLabel dimensaoLabel;
     private JComboBox<Sabor> sabor1ComboBox;
@@ -20,16 +20,17 @@ public class PizzariaGUI extends JFrame {
     private DefaultTableModel tableModel;
     private JTable clienteTable;
     private JTextField nomeField, sobrenomeField, telefoneField;
-    private JTextField filtroSobrenomeField, filtroTelefoneField; 
+    private JTextField filtroSobrenomeField, filtroTelefoneField;
     private Cliente clienteSelecionado;
     private HashMap<Cliente, ArrayList<Pedido>> pedidosClientes; // Associar pedidos a clientes
     private ArrayList<Sabor> sabores = new ArrayList<>();
-    JLabel totalLabel = new JLabel();
+    private JLabel totalLabel = new JLabel();
+    private JComboBox<String> pedidosComboBox;
 
     public PizzariaGUI() {
-        
-        inicializarSaboresPadrao(); 
-    
+
+        inicializarSaboresPadrao();
+
         // Inicializando a lista de clientes
         clientes = new ArrayList<>();
 
@@ -77,40 +78,40 @@ public class PizzariaGUI extends JFrame {
         // Definir configurações de margem e alinhamento
         gbc.insets = new Insets(5, 5, 5, 5); // margem entre os componentes
         gbc.fill = GridBagConstraints.HORIZONTAL;
-    
+
         // Adicionar campo Nome
         gbc.gridx = 0; // coluna
         gbc.gridy = 0; // linha
         gbc.weightx = 0.25; // 25% da largura para o rótulo
         formPanel.add(new JLabel("Nome:"), gbc);
-    
+
         gbc.gridx = 1;
         gbc.weightx = 0.75; // 75% da largura para o campo de texto
         nomeField = new JTextField();
         formPanel.add(nomeField, gbc);
-    
+
         // Adicionar campo Sobrenome
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.weightx = 0.25;
         formPanel.add(new JLabel("Sobrenome:"), gbc);
-    
+
         gbc.gridx = 1;
         gbc.weightx = 0.75;
         sobrenomeField = new JTextField();
         formPanel.add(sobrenomeField, gbc);
-    
+
         // Adicionar campo Telefone
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.weightx = 0.25;
         formPanel.add(new JLabel("Telefone:"), gbc);
-    
+
         gbc.gridx = 1;
         gbc.weightx = 0.75;
         telefoneField = new JTextField();
         formPanel.add(telefoneField, gbc);
-    
+
         // Botões de ação
         gbc.gridx = 0;
         gbc.gridy = 3;
@@ -124,13 +125,13 @@ public class PizzariaGUI extends JFrame {
         buttonPanel.add(atualizarClienteButton);
         buttonPanel.add(excluirClienteButton);
         formPanel.add(buttonPanel, gbc);
-    
+
         // Tabela de clientes
         String[] colunas = {"Nome", "Sobrenome", "Telefone"};
         tableModel = new DefaultTableModel(colunas, 0);
         clienteTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(clienteTable);
-    
+
         // Filtros
         JPanel filtroPanel = new JPanel(new GridLayout(1, 4));
         filtroSobrenomeField = new JTextField();
@@ -141,38 +142,40 @@ public class PizzariaGUI extends JFrame {
         filtroPanel.add(new JLabel("Telefone:"));
         filtroPanel.add(filtroTelefoneField);
         filtroPanel.add(filtrarButton);
-    
+
         // Adiciona as seções ao painel principal
         clientePanel.add(formPanel, BorderLayout.NORTH);
         clientePanel.add(scrollPane, BorderLayout.CENTER);
         clientePanel.add(filtroPanel, BorderLayout.SOUTH);
-    
+
         // Ações dos botões
         adicionarClienteButton.addActionListener(e -> adicionarCliente());
         atualizarClienteButton.addActionListener(e -> atualizarCliente());
         excluirClienteButton.addActionListener(e -> excluirCliente());
         filtrarButton.addActionListener(e -> filtrarClientes());
-    
+
         return clientePanel;
     }
 
     private JPanel criarTelaPedido() {
         JPanel pedidoPanel = new JPanel(new BorderLayout());
-    
+
         // Campo para selecionar cliente por telefone
         JPanel clientePanel = new JPanel(new FlowLayout());
         JTextField telefoneClienteField = new JTextField(10);
         JButton buscarClienteButton = new JButton("Buscar Cliente");
         JLabel clienteNomeLabel = new JLabel("Cliente: Não selecionado");
-    
+        JButton refreshButton = new JButton("Refresh");
+
+        clientePanel.add(refreshButton);
         clientePanel.add(new JLabel("Telefone do Cliente:"));
         clientePanel.add(telefoneClienteField);
         clientePanel.add(buscarClienteButton);
         clientePanel.add(clienteNomeLabel);
-    
+
         // Configura a área de pedidos e componentes
         JPanel formPanel = new JPanel(new GridLayout(7, 2, 10, 10));
-    
+
         JLabel formaLabel = new JLabel("Escolha a forma:");
         String[] formas = {"Quadrado", "Triângulo", "Círculo"};
         formaComboBox = new JComboBox<>(formas);
@@ -181,20 +184,20 @@ public class PizzariaGUI extends JFrame {
         JLabel medidaLabel = new JLabel("Escolha a medida:");
         String[] medidas = {"Tamanho (lado/raio)", "Área (cm²)"};
         medidaComboBox = new JComboBox<>(medidas);
-    
+
         JLabel tamanhoLabel = new JLabel("Informe o lado:");
         tamanhoField = new JTextField();
         dimensaoLabel = new JLabel("(Mínimo: " + Quadrado.getQuadradoMin() + ", máximo: " + Quadrado.getQuadradoMax() + ")");
-        
-    
+
+
         JLabel sabor1Label = new JLabel("Sabor 1:");
         JComboBox<Sabor> sabor1ComboBox = new JComboBox<>();
-    
+
         JLabel sabor2Label = new JLabel("Sabor 2 (Opcional):");
         JComboBox<Sabor> sabor2ComboBox = new JComboBox<>();
         sabor2ComboBox.insertItemAt(null, 0);
         sabor2ComboBox.setSelectedIndex(0);
-    
+
         // Adiciona um ActionListener ao formaComboBox para atualizar os labels dinamicamente
         formaComboBox.addActionListener(e -> {
             String formaSelecionada = (String) formaComboBox.getSelectedItem();
@@ -243,16 +246,16 @@ public class PizzariaGUI extends JFrame {
             sabor1ComboBox.addItem(sabor);
             sabor2ComboBox.addItem(sabor);
         }
-        
+
         JButton atualizarButton = new JButton("Recarregar Sabores");
         totalLabel.setText("Preço Total: R$ 0.00");
-        
+
         formPanel.add(formaLabel);
         formPanel.add(formaComboBox);
-        
+
         formPanel.add(medidaLabel);
         formPanel.add(medidaComboBox);
-        
+
         formPanel.add(tamanhoLabel);
         formPanel.add(tamanhoField);
         formPanel.add(dimensaoLabel);
@@ -281,57 +284,57 @@ public class PizzariaGUI extends JFrame {
                 clientePanel.repaint();
             }
         });
-    
+
         // Painel de botões na lateral direita
         JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 10));
         JButton adicionarPizzaButton = new JButton("Adicionar Pizza");
         JButton finalizarPedidoButton = new JButton("Finalizar Pedido");
         JButton atualizarPedidoButton = new JButton("Atualizar Pedido");
         JButton excluirPizzaButton = new JButton("Excluir Pizza");
-    
+
         // Reduzindo o tamanho dos botões
         Dimension buttonSize = new Dimension(120, 30);
         adicionarPizzaButton.setPreferredSize(buttonSize);
         finalizarPedidoButton.setPreferredSize(buttonSize);
         atualizarPedidoButton.setPreferredSize(buttonSize);
         excluirPizzaButton.setPreferredSize(buttonSize);
-    
+
         buttonPanel.add(adicionarPizzaButton);
         buttonPanel.add(finalizarPedidoButton);
         buttonPanel.add(atualizarPedidoButton);
         buttonPanel.add(excluirPizzaButton);
-    
+
         // Painel superior com formulário e botões
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(clientePanel, BorderLayout.NORTH);
-    
+
         // SplitPane horizontal para dividir formPanel e buttonPanel
         JSplitPane formButtonSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, formPanel, buttonPanel);
         formButtonSplit.setDividerLocation(0.75); // 75% formPanel, 25% buttonPanel
-        formButtonSplit.setResizeWeight(0.75); 
-    
+        formButtonSplit.setResizeWeight(0.75);
+
         topPanel.add(formButtonSplit, BorderLayout.CENTER);
-    
+
         // Campo para exibir o histórico de pedidos anteriores do cliente
         JTextArea pedidosAnterioresArea = new JTextArea(10, 30);
         pedidosAnterioresArea.setEditable(false);
         JScrollPane pedidosAnterioresScrollPane = new JScrollPane(pedidosAnterioresArea);
-    
+
         // Campo para exibir os itens do pedido atual
         pedidoArea = new JTextArea(10, 30);
         pedidoArea.setEditable(false);
         JScrollPane pedidoScrollPane = new JScrollPane(pedidoArea);
-    
+
         // Painel para histórico de pedidos e itens do pedido atual
         JPanel pedidosPanel = new JPanel(new GridLayout(1, 2, 10, 10));
         pedidosPanel.add(pedidosAnterioresScrollPane);
         pedidosPanel.add(pedidoScrollPane);
-    
+
         // SplitPane vertical para dividir o painel superior e o histórico
         JSplitPane mainSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topPanel, pedidosPanel);
         mainSplitPane.setDividerLocation(0.5); // 50% para cada parte
         mainSplitPane.setResizeWeight(0.5);
-    
+
         // Adiciona ações aos botões
         adicionarPizzaButton.addActionListener(e -> adicionarPizza(sabor1ComboBox, sabor2ComboBox));
         finalizarPedidoButton.addActionListener(e -> finalizarPedido());
@@ -350,6 +353,21 @@ public class PizzariaGUI extends JFrame {
                 clienteSelecionado = null;
             }
         });
+
+        refreshButton.addActionListener(e -> {
+            String telefone = telefoneClienteField.getText();
+            Cliente cliente = buscarClientePorTelefone(telefone);
+
+            if (cliente != null) {
+                clienteNomeLabel.setText("Cliente: " + cliente.getNome() + " " + cliente.getSobrenome());
+                clienteSelecionado = cliente;
+                exibirPedidosAnteriores(cliente, pedidosAnterioresArea);
+                pedido = new Pedido();
+                pedidoArea.setText("");
+            } else {
+                JOptionPane.showMessageDialog(this, "Cliente não encontrado.");
+            }
+        });
         atualizarPedidoButton.addActionListener(e -> {
             if (clienteSelecionado != null) {
                 atualizarPedido(clienteSelecionado);
@@ -357,40 +375,88 @@ public class PizzariaGUI extends JFrame {
                 JOptionPane.showMessageDialog(this, "Selecione um cliente para atualizar o pedido.");
             }
         });
-    
+
         // Adiciona o mainSplitPane ao painel principal
         pedidoPanel.add(mainSplitPane, BorderLayout.CENTER);
-    
+
         return pedidoPanel;
     }
 
+    private void dropdown(Cliente cliente) {
+        ArrayList<Pedido> listaPedidos = pedidosClientes.get(cliente);
 
+        if (listaPedidos == null || listaPedidos.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Este cliente não possui pedidos anteriores para atualizar.", "Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Exibe uma lista de pedidos para o cliente selecionar qual atualizar
+        String[] pedidosOptions = new String[listaPedidos.size()];
+        for (int i = 0; i < listaPedidos.size(); i++) {
+            Pedido p = listaPedidos.get(i);
+            pedidosOptions[i] = "Pedido ID: " + p.getIdPedido() + " - R$" + p.getValorTotal();
+        }
+
+        String selectedPedidoStr = (String) JOptionPane.showInputDialog(
+                this,
+                "Selecione um pedido para atualizar:",
+                "Atualizar Pedido",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                pedidosOptions,
+                pedidosOptions[0]);
+
+        if (selectedPedidoStr != null) {
+            int pedidoIndex = -1;
+            for (int i = 0; i < pedidosOptions.length; i++) {
+                if (pedidosOptions[i].equals(selectedPedidoStr)) {
+                    pedidoIndex = i;
+                    break;
+                }
+            }
+
+            if (pedidoIndex != -1) {
+                pedido = listaPedidos.get(pedidoIndex); // Carrega o pedido selecionado
+                exibirItensPedidoAtual(); // Exibe os itens do pedido atual no JTextArea
+                listaPedidos.remove(pedido);
+            }
+        }
+        atualizaPreco();
+    }
     private JPanel criarTelaGerenciarPedido () {
         JPanel gerenciarPanel = new JPanel(new BorderLayout());
-    
+        JButton dropdown = new JButton("Atualizar Pedido");
         // Campo para selecionar cliente por telefone
-        JPanel clientePanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); 
+        JPanel clientePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JTextField telefoneClienteField = new JTextField(10);
         JButton buscarClienteButton = new JButton("Buscar Cliente");
         JLabel clienteNomeLabel = new JLabel("Cliente: Não selecionado");
-    
+
+        pedidosComboBox = new JComboBox<>();
+        pedidosComboBox.setEnabled(false);
+
         clientePanel.add(new JLabel("Telefone do Cliente:"));
         clientePanel.add(telefoneClienteField);
         clientePanel.add(buscarClienteButton);
         clientePanel.add(clienteNomeLabel);
-    
+        clientePanel.add(pedidosComboBox);
+
         // Configura a área de pedidos e componentes
         JPanel formPanel = new JPanel(new GridLayout(2, 2, 5, 5)); // Grid mais simples para o status
-
         JLabel statusLabel = new JLabel("Status do Pedido:");
         JComboBox<Pedido.EstadoPedido> statusComboBox = new JComboBox<>(Pedido.EstadoPedido.values());
-
         formPanel.add(statusLabel);
         formPanel.add(statusComboBox);
+
         // Painel de botões na lateral direita
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER)); // Alinhamento centralizado
         JButton atualizarPedidoButton = new JButton("Atualizar Pedido");
         buttonPanel.add(atualizarPedidoButton);
+
+        // Campo para exibir os itens do pedido selecionado
+        pedidoGerenciarArea = new JTextArea(10, 30);
+        pedidoGerenciarArea.setEditable(false);
+        //JScrollPane pedidoScrollPane = new JScrollPane(pedidoGerenciarArea);
 
         // Painel superior com formulário e botões
         JPanel topPanel = new JPanel(new BorderLayout());
@@ -431,64 +497,92 @@ public class PizzariaGUI extends JFrame {
 
         // Adiciona ações aos botões
         buscarClienteButton.addActionListener(e -> {
+
             String telefone = telefoneClienteField.getText();
             Cliente cliente = buscarClientePorTelefone(telefone);
+
             if (cliente != null) {
                 clienteNomeLabel.setText("Cliente: " + cliente.getNome() + " " + cliente.getSobrenome());
                 clienteSelecionado = cliente;
                 exibirPedidosAnteriores(cliente, pedidosAnterioresArea);
                 //pedido = new Pedido();
+
+                ArrayList<Pedido> listaPedidos = pedidosClientes.get(cliente);
+                pedidosComboBox.removeAllItems(); // Limpa itens anteriores
+                if (listaPedidos != null && !listaPedidos.isEmpty()) {
+                    for (Pedido pedido : listaPedidos) {
+                        pedidosComboBox.addItem("Pedido ID: " + pedido.getIdPedido() + " - R$" + pedido.getValorTotal());
+                    }
+                    pedidosComboBox.setEnabled(true); // Habilita o dropdown
+                } else {
+                    pedidosComboBox.addItem("Nenhum pedido disponível");
+                    pedidosComboBox.setEnabled(false); // Desabilita o dropdown
+                }
             } else {
                 JOptionPane.showMessageDialog(this, "Cliente não encontrado.");
                 clienteSelecionado = null;
+                pedidosComboBox.setEnabled(false); // Desabilita o dropdown
             }
         });
+
         atualizarPedidoButton.addActionListener(e -> {
-            if (clienteSelecionado != null && pedido != null) {
-                
-                // Atualiza o status do pedido para o selecionado no ComboBox
+            if (clienteSelecionado == null) {
+                JOptionPane.showMessageDialog(this, "Selecione um cliente.", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            Pedido pedido = buscarPedidoSelecionado();
+            if (pedido != null) {
                 Pedido.EstadoPedido estadoSelecionado = (Pedido.EstadoPedido) statusComboBox.getSelectedItem();
-                
                 pedido.setEstado(estadoSelecionado);
-                
-                pedidoGerenciarArea.setText("Status atualizado para: " + pedido.getEstado()); // Atualiza a área de exibição do pedido
+                pedidoGerenciarArea.setText("Pedido atualizado:\nPedido ID: " + pedido.getIdPedido() +
+                        "\nNovo status: " + estadoSelecionado);
                 JOptionPane.showMessageDialog(this, "Status do pedido atualizado para: " + estadoSelecionado);
             } else {
-                JOptionPane.showMessageDialog(this, "Selecione um cliente e um pedido para atualizar o status.");
+                JOptionPane.showMessageDialog(this, "Selecione um pedido válido.", "Erro", JOptionPane.ERROR_MESSAGE);
             }
         });
-    
+
         // Adiciona o mainSplitPane ao painel principal
         gerenciarPanel.add(mainSplitPane, BorderLayout.CENTER);
-    
+
         return gerenciarPanel;
     }
 
+    private Pedido buscarPedidoSelecionado() {
+        int selectedIndex = pedidosComboBox.getSelectedIndex(); // Obtém o índice selecionado
+        if (selectedIndex >= 0 && clienteSelecionado != null) {
+            ArrayList<Pedido> listaPedidos = pedidosClientes.get(clienteSelecionado);
+            if (listaPedidos != null && selectedIndex < listaPedidos.size()) {
+                return listaPedidos.get(selectedIndex); // Retorna o pedido correspondente ao índice
+            }
+        }
+        return null; // Retorna null se algo deu errado
+    }
     // Tela para atualizar os preços das pizzas
     private JPanel criarTelaAtualizarPrecos() {
         JPanel precoPanel = new JPanel(new GridLayout(4, 2, 10, 10));
 
         Font fieldFont = new Font("SansSerif", Font.PLAIN, 20);
-    
+
         JLabel precoSimplesLabel = new JLabel("Preço Simples (R$/cm²):");
         JTextField precoSimplesField = new JTextField(Double.toString(PrecoPizza.getInstance().getPrecoSimples()));
         precoSimplesField.setFont(fieldFont);
         precoSimplesLabel.setFont(fieldFont);
-    
+
         JLabel precoEspecialLabel = new JLabel("Preço Especial (R$/cm²):");
         JTextField precoEspecialField = new JTextField(Double.toString(PrecoPizza.getInstance().getPrecoEspecial()));
         precoEspecialField.setFont(fieldFont);
         precoEspecialLabel.setFont(fieldFont);
-    
+
         JLabel precoPremiumLabel = new JLabel("Preço Premium (R$/cm²):");
         JTextField precoPremiumField = new JTextField(Double.toString(PrecoPizza.getInstance().getPrecoPremium()));
         precoPremiumField.setFont(fieldFont);
         precoPremiumLabel.setFont(fieldFont);
-    
+
         JButton atualizarPrecosButton = new JButton("Atualizar Preços");
-        Font novaFonte = new Font("SansSerif", Font.PLAIN, 22); // 
+        Font novaFonte = new Font("SansSerif", Font.PLAIN, 22); //
         atualizarPrecosButton.setFont(novaFonte);
-        
+
         // Ação do botão para atualizar os preços
         atualizarPrecosButton.addActionListener(new ActionListener() {
             @Override
@@ -497,18 +591,18 @@ public class PizzariaGUI extends JFrame {
                     double precoSimples = Double.parseDouble(precoSimplesField.getText());
                     double precoEspecial = Double.parseDouble(precoEspecialField.getText());
                     double precoPremium = Double.parseDouble(precoPremiumField.getText());
-    
+
                     PrecoPizza.getInstance().setPrecoSimples(precoSimples);
                     PrecoPizza.getInstance().setPrecoEspecial(precoEspecial);
                     PrecoPizza.getInstance().setPrecoPremium(precoPremium);
-    
+
                     JOptionPane.showMessageDialog(precoPanel, "Preços atualizados com sucesso!");
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(precoPanel, "Por favor, insira valores válidos para os preços.", "Erro", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
-    
+
             // Adiciona os componentes ao painel
             precoPanel.add(precoSimplesLabel);
             precoPanel.add(precoSimplesField);
@@ -518,13 +612,13 @@ public class PizzariaGUI extends JFrame {
             precoPanel.add(precoPremiumField);
             precoPanel.add(new JLabel());
             precoPanel.add(atualizarPrecosButton);
-    
+
             return precoPanel;
         }
 
     private JPanel criarTelaCadastroSabor() {
         JPanel saborPanel = new JPanel(new BorderLayout());
-    
+
         JPanel formPanel = new JPanel(new GridLayout(2, 2, 10, 10));
 
         Font fieldFont = new Font("SansSerif", Font.PLAIN, 20);
@@ -539,42 +633,42 @@ public class PizzariaGUI extends JFrame {
         JTextField nomeField = new JTextField();
         nomeLabel.setFont(fieldFont);
         nomeField.setFont(fieldFont);
-    
+
         JButton adicionarSaborButton = new JButton("Adicionar Sabor");
         adicionarSaborButton.setFont(fieldFont);
-        
+
         formPanel.add(tipoLabel);
         formPanel.add(tipoComboBox);
         formPanel.add(nomeLabel);
         formPanel.add(nomeField);
-    
+
         saborPanel.add(formPanel, BorderLayout.NORTH);
         saborPanel.add(adicionarSaborButton, BorderLayout.SOUTH);
 
         sabor1ComboBox = new JComboBox<>();
         sabor2ComboBox = new JComboBox<>();
-        
+
         // Ação do botão adicionar sabor
         adicionarSaborButton.addActionListener(e -> {
             String nome = nomeField.getText();
             String tipo = (String) tipoComboBox.getSelectedItem();
-        
+
             if (!nome.isEmpty() && tipo != null) {
                 Sabor novoSabor = new Sabor(nome, tipo);
                 sabores.add(novoSabor);
-        
+
                 // Atualizar as comboboxes de sabores
                 sabor1ComboBox.addItem(novoSabor);
                 sabor2ComboBox.addItem(novoSabor);
-        
+
                 JOptionPane.showMessageDialog(this, "Sabor adicionado: " + novoSabor, "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(this, "Preencha todos os campos.", "Erro", JOptionPane.ERROR_MESSAGE);
             }
-        
+
             nomeField.setText("");
         });
-        
+
         return saborPanel;
     }
 
@@ -615,7 +709,7 @@ public class PizzariaGUI extends JFrame {
                 JOptionPane.showMessageDialog(this, "Nome e sobrenome são obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-        
+
             if (!telefone.matches("\\d+")) {
                 JOptionPane.showMessageDialog(this, "O telefone deve conter apenas números.", "Erro", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -639,15 +733,15 @@ public class PizzariaGUI extends JFrame {
 
     private void excluirCliente() {
         int selectedRow = clienteTable.getSelectedRow();
-        
+
         if (selectedRow >= 0) {
             // Confirmar a exclusão
-            int confirm = JOptionPane.showConfirmDialog(this, 
-                "Tem certeza de que deseja excluir este cliente?", 
-                "Confirmação", 
-                JOptionPane.YES_NO_OPTION, 
+            int confirm = JOptionPane.showConfirmDialog(this,
+                "Tem certeza de que deseja excluir este cliente?",
+                "Confirmação",
+                JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE);
-            
+
             // Se o usuário confirmar a exclusão
             if (confirm == JOptionPane.YES_OPTION) {
                 // Remove o cliente da lista
@@ -658,14 +752,14 @@ public class PizzariaGUI extends JFrame {
 
                 // Limpa os campos após a exclusão
                 limparCampos();
-                
+
                 JOptionPane.showMessageDialog(this, "Cliente excluído com sucesso.");
             }
         } else {
             JOptionPane.showMessageDialog(this, "Por favor, selecione um cliente para excluir.",                                      "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
-        
+
     private void filtrarClientes() {
         String sobrenomeFiltro = filtroSobrenomeField.getText().toLowerCase();
         String telefoneFiltro = filtroTelefoneField.getText();
@@ -691,9 +785,9 @@ public class PizzariaGUI extends JFrame {
     // Método para exibir os pedidos anteriores de um cliente
     private void exibirPedidosAnteriores(Cliente cliente, JTextArea pedidosAnterioresArea) {
         pedidosAnterioresArea.setText(""); // Limpa a área de pedidos anteriores
-    
+
         ArrayList<Pedido> listaPedidos = pedidosClientes.get(cliente);
-    
+
         if (listaPedidos != null && !listaPedidos.isEmpty()) {
             pedidosAnterioresArea.append("Pedidos Anteriores:\n");
             for (Pedido pedidoAnterior : listaPedidos) {
@@ -712,19 +806,19 @@ public class PizzariaGUI extends JFrame {
 
     private void atualizarPedido(Cliente cliente) {
         ArrayList<Pedido> listaPedidos = pedidosClientes.get(cliente);
-        
+
         if (listaPedidos == null || listaPedidos.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Este cliente não possui pedidos anteriores para atualizar.", "Erro", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         // Exibe uma lista de pedidos para o cliente selecionar qual atualizar
         String[] pedidosOptions = new String[listaPedidos.size()];
         for (int i = 0; i < listaPedidos.size(); i++) {
             Pedido p = listaPedidos.get(i);
             pedidosOptions[i] = "Pedido ID: " + p.getIdPedido() + " - R$" + p.getValorTotal();
         }
-        
+
         String selectedPedidoStr = (String) JOptionPane.showInputDialog(
                 this,
                 "Selecione um pedido para atualizar:",
@@ -733,7 +827,7 @@ public class PizzariaGUI extends JFrame {
                 null,
                 pedidosOptions,
                 pedidosOptions[0]);
-        
+
         if (selectedPedidoStr != null) {
             int pedidoIndex = -1;
             for (int i = 0; i < pedidosOptions.length; i++) {
@@ -742,16 +836,16 @@ public class PizzariaGUI extends JFrame {
                     break;
                 }
             }
-            
+
             if (pedidoIndex != -1) {
                 pedido = listaPedidos.get(pedidoIndex); // Carrega o pedido selecionado
                 exibirItensPedidoAtual(); // Exibe os itens do pedido atual no JTextArea
-                listaPedidos.remove(pedido); 
+                listaPedidos.remove(pedido);
             }
         }
         atualizaPreco();
     }
-    
+
     private void excluirPizza() {
         if (pedido.getPizzas().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Não há pizzas no pedido para excluir.", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -786,7 +880,7 @@ public class PizzariaGUI extends JFrame {
 
     private void exibirItensPedidoAtual() {
         pedidoArea.setText(""); // Limpa a área de pedido
-        
+
         for (Pizza pizza : pedido.getPizzas()) {
             pedidoArea.append("Pizza: " + pizza + "\n");
         }
@@ -794,14 +888,14 @@ public class PizzariaGUI extends JFrame {
 
     private Cliente buscarClientePorTelefone(String telefone) {
         ArrayList<Cliente> clientesCorrespondentes = new ArrayList<>();
-    
+
         // Coleta todos os clientes que têm o mesmo telefone
         for (Cliente cliente : clientes) {
             if (cliente.getTelefone().equals(telefone)) {
                 clientesCorrespondentes.add(cliente);
             }
         }
-    
+
         // Verifica se temos clientes correspondentes
         if (clientesCorrespondentes.isEmpty()) {
             // Não encontrou clientes com esse telefone
@@ -816,7 +910,7 @@ public class PizzariaGUI extends JFrame {
                 Cliente cliente = clientesCorrespondentes.get(i);
                 clientesOptions[i] = cliente.getTelefone() + " - " + cliente.getNome() + " " + cliente.getSobrenome();
             }
-    
+
             // Exibe o dropdown para selecionar o cliente
             String selectedClienteStr = (String) JOptionPane.showInputDialog(
                     this,
@@ -826,7 +920,7 @@ public class PizzariaGUI extends JFrame {
                     null,
                     clientesOptions,
                     clientesOptions[0]);
-    
+
             if (selectedClienteStr != null) {
                 // Encontra o cliente correspondente ao selecionado
                 for (Cliente cliente : clientesCorrespondentes) {
@@ -837,7 +931,7 @@ public class PizzariaGUI extends JFrame {
                 }
             }
         }
-    
+
         return null; // Retorna null se nenhuma seleção foi feita
     }
 
@@ -873,10 +967,10 @@ public class PizzariaGUI extends JFrame {
                     throw new IllegalArgumentException("Forma inválida.");
             }
         }
-    
+
             Sabor sabor1 = (Sabor) sabor1ComboBox.getSelectedItem();
             Sabor sabor2 = (Sabor) sabor2ComboBox.getSelectedItem();
-    
+
             Forma forma = null;
             switch (formaSelecionada) {
                 case "Quadrado":
@@ -900,13 +994,13 @@ public class PizzariaGUI extends JFrame {
                 default:
                     throw new IllegalArgumentException("Forma inválida.");
             }
-    
+
             Sabor[] sabores = (sabor2 == null) ? new Sabor[]{sabor1} : new Sabor[]{sabor1, sabor2};
             Pizza pizza = new Pizza(forma, sabores);
             pedido.adicionarPizza(pizza);
-    
+
             pedidoArea.append("Pizza adicionada: " + pizza + "\n");
-    
+
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Por favor, insira um valor numérico válido para o tamanho.", "Erro", JOptionPane.ERROR_MESSAGE);
         } catch (IllegalArgumentException e) {
@@ -915,34 +1009,34 @@ public class PizzariaGUI extends JFrame {
 
         atualizaPreco();
     }
-    
-    private void finalizarPedido() { 
+
+    private void finalizarPedido() {
         if (clienteSelecionado == null) {
             JOptionPane.showMessageDialog(this, "Por favor, selecione um cliente antes de finalizar o pedido.", "Erro", JOptionPane.ERROR_MESSAGE);
             return;
         }
-    
+
         // Atribuir um ID único ao pedido
-        int pedidoId = pedido.getIdPedido(); 
+        int pedidoId = pedido.getIdPedido();
         double precoTotal = pedido.calcularPrecoTotal();
-    
+
         // Detalhes do pedido finalizado
         String detalhesPedido = "Pedido ID: " + pedidoId + "\nCliente: " + clienteSelecionado.getNome() + " " + clienteSelecionado.getSobrenome() + "\nPreço total: R$" + precoTotal;
         JOptionPane.showMessageDialog(this, detalhesPedido, "Pedido Finalizado", JOptionPane.INFORMATION_MESSAGE);
-    
+
         // Exibir detalhes do pedido na área de pedidos
         pedidoArea.append(detalhesPedido + "\n");
-    
+
         // Adicionar o pedido à lista de pedidos do cliente
         ArrayList<Pedido> listaPedidos = pedidosClientes.getOrDefault(clienteSelecionado, new ArrayList<>());
         listaPedidos.add(pedido);
         pedidosClientes.put(clienteSelecionado, listaPedidos); // Atualiza o mapa
-    
+
         // Limpar o pedido e o cliente selecionado para um novo pedido
         clienteSelecionado = null;
         atualizaPreco();
     }
-    
+
     private void inicializarSaboresPadrao() {
         sabores.add(new Sabor("Margherita", "Simples"));
         sabores.add(new Sabor("Calabresa", "Simples"));
@@ -953,7 +1047,7 @@ public class PizzariaGUI extends JFrame {
     }
 
     private void atualizaPreco(){
-        totalLabel.setText("Preço Total: R$ "+ pedido.calcularPrecoTotal());    
+        totalLabel.setText("Preço Total: R$ "+ pedido.calcularPrecoTotal());
     }
 
     public static void main(String[] args) {
